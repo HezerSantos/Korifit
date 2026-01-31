@@ -1,0 +1,25 @@
+{
+  "name": "korifit",
+  "version": "1.0.0",
+  "description": "/user",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently -k --names server,client --prefix-colors blue,magenta --timestamp-format \"[HH:mm:ss]\" \"cd gin && air\" \"npm run dev --prefix ./client\"",
+    "server": "concurrently -k --names server --prefix-colors blue --timestamp-format \"[HH:mm:ss]\" \"air\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HezerSantos/Korifit.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/HezerSantos/Korifit/issues"
+  },
+  "homepage": "https://github.com/HezerSantos/Korifit#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

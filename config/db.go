@@ -31,6 +31,6 @@ func DatabaseConnect(){
 
 func DatabaseMigrate() {
     fmt.Println("   MIGRATING DATABASE...")
-	DB.AutoMigrate(&User{}, &Exercise{}, &Workout{}, &DailyNutritionList{}, &NutritionItem{})
+	DB.AutoMigrate(&Exercise{}, &Workout{}, &DailyNutritionList{}, &NutritionItem{}, &User{},)
     fmt.Println("   FINISHED MIGRATING DATABASE...")
 }
