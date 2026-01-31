@@ -1,2 +1,16 @@
 .env
 *node_modules
+
+# Go
+/bin/
+/build/
+*.exe
+*.test
+
+# Node
+/node_modules/
+/dist/
+
+# Temp files
+/tmp/
+*.tmp
