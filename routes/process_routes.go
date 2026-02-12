@@ -9,7 +9,7 @@ import (
 func ProcessRoutes(api *gin.RouterGroup) {
 	
 	users := api.Group("/users")
-
+	
 	users.POST("/signup", controllers.CreateUser)
 	users.POST("/login", controllers.VerifyUser)
 

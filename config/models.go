@@ -8,7 +8,7 @@ import (
 
 type User struct {
     ID           uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"id"`
-    Email string  `json:"email"`
+    Email string  `gorm:"unique" json:"email"`
     Password string `json:"password"`
 
     Workouts []Workout `gorm:"one2many"`

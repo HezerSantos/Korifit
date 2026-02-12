@@ -43,7 +43,7 @@ func CreateUser(c *gin.Context) {
 		helpers.NetworkError(c, err)
 		return
 	}
-
+	//DOESNT CHECK FOR EMAIL CONFLICTS. DB CHECKS. PURPOSE IS FOR ATTACKS
 	createdUser := config.User{Email: newUser.Email, Password: hashedPassowrd}
 
 	config.DB.Create(&createdUser)

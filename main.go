@@ -2,6 +2,7 @@ package main
 
 import (
 	"Korifit/config"
+	"Korifit/middleware"
 	"Korifit/routes"
 
 	"github.com/gin-gonic/gin"
@@ -44,6 +45,7 @@ func main() {
 
 	router := gin.New()
 	router.SetTrustedProxies(trustedProxies)
+	router.Use(middleware.Logger)
 	
 	api := router.Group("/api")
 
