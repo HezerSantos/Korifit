@@ -1,8 +1,0 @@
-# Only watch real Go source folders
-[build]
-include_dirs = ["controllers", "helpers", "middleware"]
-include_ext = ["go", "tpl", "tmpl"]
-
-# Optional extra safety
-exclude_dirs = ["node_modules", "dist"]
-exclude_files = ["*.log"]
