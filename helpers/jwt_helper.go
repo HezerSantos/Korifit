@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -20,4 +21,23 @@ func GenerateUserJWT(userId uuid.UUID, email string, exp int) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(AUTH_SECRET)
+}
+
+func VerifyUserJWT(cookie string) (map[string]interface{}, error) {
+	token, err := jwt.Parse(cookie, func(token *jwt.Token) (interface{}, error) {
+		if token.Method != jwt.SigningMethodHS256 {
+    		return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return AUTH_SECRET, nil
+	})
+
+	if err != nil {
+        return nil, fmt.Errorf("Unauthorized Token")
+    }
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, nil
+	} else {
+		return nil, fmt.Errorf("Unauthorized Token")
+	}
 }

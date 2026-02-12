@@ -2,6 +2,7 @@ package routes
 
 import (
 	"Korifit/controllers"
+	"Korifit/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,12 +10,13 @@ import (
 func ProcessRoutes(api *gin.RouterGroup) {
 	
 	users := api.Group("/users")
-	
+
 	users.POST("/signup", controllers.CreateUser)
 	users.POST("/login", controllers.VerifyUser)
 
 
 	fitness := api.Group("/fitness")
+	fitness.Use(middleware.AuthenticateUser)
 	fitness.GET("/exercises", controllers.GetExercises)
 	// fitness.GET("/exercises/:id")
 	// fitness.GET("/workouts")

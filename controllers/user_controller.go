@@ -22,6 +22,7 @@ type CreateUserJSON struct {
 
 
 func CreateUser(c *gin.Context) {
+
 	var newUser CreateUserJSON
 
 	err := c.ShouldBind(&newUser)
