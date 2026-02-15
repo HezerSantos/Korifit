@@ -199,3 +199,71 @@ func CreateWorkout(c *gin.Context) {
 		"exercises": newWorkout.Exercises,
 	})
 }
+
+func GetWorkoutByID(c *gin.Context) {
+	workoutId := c.Param("id")
+
+	parsedWorkoutId, err := uuid.Parse(workoutId)
+
+	if err != nil {
+		helpers.ErrorHelper(c, 
+			helpers.JsonError{
+				Message: "GetWorkoutByID: ID ERROR",
+				Status: 400,
+				Json: helpers.JsonResponseType{Code: "INVALID_PARAM", Msg: "Bad Request"},
+			},
+		)
+		return
+	}
+
+	userId, exists := c.Get("userId")
+
+	if !exists {
+		helpers.NetworkError(c, nil)
+		return
+	}
+
+	parsedUserId, err := uuid.Parse(fmt.Sprint(userId))
+
+	if err != nil {
+		helpers.NetworkError(c, err)
+		return
+	}
+
+	queriedWorkout := config.Workout{ID: parsedWorkoutId}
+	result := config.DB.Preload("Exercises").Find(&queriedWorkout)
+
+	if result.Error != nil {
+		helpers.NetworkError(c, result.Error)
+		return
+	}
+
+	if result.RowsAffected == 0 {
+		helpers.ErrorHelper(c, helpers.JsonError{
+			Message: "Workout not found",
+			Status: 404,
+			Json: helpers.JsonResponseType{
+				Msg: "INVALID_PARAM",
+				Code: "INVALID_PARAM",
+			},
+		})
+		return
+	}
+
+	if queriedWorkout.UserID != parsedUserId {
+		helpers.ErrorHelper(c, helpers.JsonError{
+			Message: "Unauthorized",
+			Status: 401,
+			Json: helpers.JsonResponseType{
+				Msg: "INVALID_ACCESS",
+				Code: "INVALID_ACCESS",
+			},
+		})
+		return
+	}
+	c.JSON(200, gin.H{
+		"msg": "Workout Retrieved",
+		"workout": queriedWorkout,
+	})
+
+}
