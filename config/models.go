@@ -8,11 +8,11 @@ import (
 
 type User struct {
     ID           uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"id"`
-    Email string  `gorm:"unique" json:"email"`
-    Password string `json:"password"`
+    Email        string    `gorm:"unique" json:"email"`
+    Password     string    `json:"password"`
 
-    Workouts []Workout `gorm:"one2many"`
-    DailyNutritionLists []DailyNutritionList `gorm:"one2many" json:"dailyNutritionLists"`
+    Workouts            []Workout            `gorm:"foreignKey:UserID" json:"workouts"`
+    DailyNutritionLists []DailyNutritionList `gorm:"foreignKey:UserID" json:"dailyNutritionLists"`
 }
 
 

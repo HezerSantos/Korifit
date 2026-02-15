@@ -19,7 +19,7 @@ func ProcessRoutes(api *gin.RouterGroup) {
 	// fitness.Use(middleware.AuthenticateUser)
 	fitness.GET("/exercises", controllers.GetExercises)
 	fitness.POST("/exercises", controllers.CreateExercise)
-	// fitness.GET("/exercises/:id")
+	fitness.GET("/exercises/:id", controllers.GetExerciseByID)
 	// fitness.GET("/workouts")
 	// fitness.GET("/workouts/:id")
 	// fitness.GET("/nutrition")

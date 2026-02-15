@@ -4,6 +4,7 @@ import (
 	"Korifit/config"
 	"Korifit/helpers"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func GetExercises(c *gin.Context) {
@@ -56,5 +57,37 @@ func CreateExercise(c *gin.Context) {
 			"muscleTarget": exercise.MuscleTarget,
 			"workouts": exercise.Workouts,
 		},
+	})
+}
+
+
+
+func GetExerciseByID(c *gin.Context) {
+	paramId := c.Param("id")
+	id, err := uuid.Parse(paramId)
+
+	if err != nil {
+		helpers.ErrorHelper(c, 
+			helpers.JsonError{
+				Message: "GetExerciseByID: ID ERROR",
+				Status: 400,
+				Json: helpers.JsonResponseType{Code: "INVALID_BODY", Msg: "Bad Request"},
+			},
+		)
+		return
+	}
+
+
+
+	exercise := config.Exercise{ID: id}
+
+	config.DB.Find(&exercise)
+
+	c.JSON(200, gin.H{
+		"msg": "Exercise Successfully Retrieved",
+		"id": exercise.ID,
+		"name": exercise.Name,
+		"muscleTarget": exercise.MuscleTarget,
+		"workouts": exercise.Workouts,
 	})
 }
