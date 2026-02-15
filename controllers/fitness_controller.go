@@ -3,6 +3,8 @@ package controllers
 import (
 	"Korifit/config"
 	"Korifit/helpers"
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -91,3 +93,36 @@ func GetExerciseByID(c *gin.Context) {
 		"workouts": exercise.Workouts,
 	})
 }
+
+
+func GetWorkouts(c *gin.Context) {
+	userId, exists := c.Get("userId")
+	
+	if !exists {
+		helpers.NetworkError(c, nil)
+		return
+	};
+
+	parsedUuid, err := uuid.Parse(fmt.Sprint(userId))
+
+	if err != nil {
+		helpers.NetworkError(c, err)
+		return
+	}
+
+	userWorkouts := config.Workout{UserID: parsedUuid}
+
+	result := config.DB.Find(&userWorkouts)
+
+	if result.Error != nil {
+		helpers.NetworkError(c, err)
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"msg": "Successfully Retrieved User Workouts",
+		"id": parsedUuid,
+		"workouts": userWorkouts,
+	})
+}
+

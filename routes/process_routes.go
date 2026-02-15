@@ -20,7 +20,9 @@ func ProcessRoutes(api *gin.RouterGroup) {
 	fitness.GET("/exercises", controllers.GetExercises)
 	fitness.POST("/exercises", controllers.CreateExercise)
 	fitness.GET("/exercises/:id", controllers.GetExerciseByID)
-	// fitness.GET("/workouts")
+
+
+	fitness.GET("/workouts", controllers.GetWorkouts)
 	// fitness.GET("/workouts/:id")
 	// fitness.GET("/nutrition")
 
