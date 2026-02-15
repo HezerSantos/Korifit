@@ -21,3 +21,39 @@ func GetExercises(c *gin.Context) {
 		"id": id,
 	})
 }
+
+
+type CreateExerciseJSON struct{
+	Name string `json:"name" binding:"required"`
+	MuscleTarget string `json:"muscleTarget" binding:"required"`
+}
+
+func CreateExercise(c *gin.Context) {
+	var newExerciseJSON CreateExerciseJSON
+
+	err := c.ShouldBind(&newExerciseJSON)
+
+	if err != nil {
+		helpers.ErrorHelper(
+			c, 
+			helpers.JsonError{
+				Message: "JSON ERROR 001", 
+				Status: 400, 
+				Json: helpers.JsonResponseType{Code: "INVALID_BODY", Msg: "JSON ERROR 001"},
+			},
+		)
+		return
+	}
+
+	config.DB.CreateExercise(&newExerciseJSON)
+
+	c.JSON(200, gin.H{
+		"msg": "Record successfully created",
+		"record": map[string]interface{}{
+			"id": "placeholder",
+			"name": "ph",
+			"muscleTarget": "ph",
+			"workouts": string[]{},
+		},
+	})
+}
