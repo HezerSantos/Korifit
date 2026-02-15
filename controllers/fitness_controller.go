@@ -45,15 +45,16 @@ func CreateExercise(c *gin.Context) {
 		return
 	}
 
-	config.DB.CreateExercise(&newExerciseJSON)
+	exercise := config.Exercise{Name: newExerciseJSON.Name, MuscleTarget: newExerciseJSON.MuscleTarget}
+	config.DB.Create(&exercise)
 
 	c.JSON(200, gin.H{
 		"msg": "Record successfully created",
 		"record": map[string]interface{}{
-			"id": "placeholder",
-			"name": "ph",
-			"muscleTarget": "ph",
-			"workouts": string[]{},
+			"id": exercise.ID,
+			"name": exercise.Name,
+			"muscleTarget": exercise.MuscleTarget,
+			"workouts": exercise.Workouts,
 		},
 	})
 }
