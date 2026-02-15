@@ -112,7 +112,7 @@ func GetWorkouts(c *gin.Context) {
 
 	userWorkouts := config.Workout{UserID: parsedUuid}
 
-	result := config.DB.Find(&userWorkouts)
+	result := config.DB.Preload("Exercises").Find(&userWorkouts)
 
 	if result.Error != nil {
 		helpers.NetworkError(c, err)
@@ -126,3 +126,76 @@ func GetWorkouts(c *gin.Context) {
 	})
 }
 
+type CreateWorkoutJSON struct{
+	Name string `json:"name" binding:"required"`
+	Exercises []string `json:"exercises" binding:"required"`
+}
+func CreateWorkout(c *gin.Context) {
+	var createWorkoutJson CreateWorkoutJSON
+
+	err := c.ShouldBind(&createWorkoutJson)
+
+	if err != nil {
+		fmt.Println(err)
+		helpers.ErrorHelper(
+			c, 
+			helpers.JsonError{
+				Message: "JSON ERROR 001", 
+				Status: 400, 
+				Json: helpers.JsonResponseType{Code: "INVALID_BODY", Msg: "JSON ERROR 001"},
+			},
+		)
+		return
+	}
+
+	userId, exists := c.Get("userId")
+
+	if !exists {
+		helpers.NetworkError(c, nil)
+		return
+	};
+
+	parsedUuid, err := uuid.Parse(fmt.Sprint(userId))
+
+	if err != nil {
+		helpers.NetworkError(c, err)
+		return
+	};
+	
+	var targetExercises []config.Exercise
+	
+	for _, id := range(createWorkoutJson.Exercises) {
+		parsedUuid, err := uuid.Parse(fmt.Sprint(id))
+
+		if err != nil {
+			helpers.NetworkError(c, err)
+			return
+		};
+
+		selectedExercise := config.Exercise{ID: parsedUuid}
+		result := config.DB.Find(&selectedExercise)
+
+		if result.Error != nil {
+			helpers.NetworkError(c, err)
+			return
+		}
+		targetExercises = append(targetExercises, selectedExercise)
+	}
+
+	newWorkout := config.Workout{Name: createWorkoutJson.Name, Exercises: targetExercises, UserID: parsedUuid}
+
+	result := config.DB.Create(&newWorkout)
+
+	if result.Error != nil {
+		helpers.NetworkError(c, result.Error)
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"msg": "Workout Created",
+		"id": newWorkout.ID,
+		"userId": newWorkout.UserID,
+		"name": newWorkout.Name,
+		"exercises": newWorkout.Exercises,
+	})
+}
