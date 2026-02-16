@@ -23,10 +23,12 @@ func Logger(c *gin.Context) {
 
 	now := time.Now()
 	formatted := now.Format("01/02/06 15:04:05")
+	fmt.Println()
 	fmt.Printf("	Request @ %s", formatted)
-	fmt.Printf("	STATUS: %d @ %dms\n", status, latency)
-	fmt.Printf("	METHOD: %s %s\n", requestMethod, requestPath)
-	fmt.Printf("	Origin: %s\n", requestOrigin)
-	fmt.Printf("	IP: %s\n", requestAddress)
-	fmt.Printf("	User-Agent, %s", requestUserAgent)
+	fmt.Printf("		STATUS: %d @ %dms\n", status, latency)
+	fmt.Printf("		METHOD: %s %s\n", requestMethod, requestPath)
+	fmt.Printf("		Origin: %s\n", requestOrigin)
+	fmt.Printf("		IP: %s\n", requestAddress)
+	fmt.Printf("		User-Agent, %s", requestUserAgent)
+	fmt.Println()
 }
