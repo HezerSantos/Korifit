@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-
 func Logger(c *gin.Context) {
 	start := time.Now()
 

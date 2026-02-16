@@ -10,16 +10,11 @@ import (
 	"gorm.io/gorm"
 )
 
-
-
 type CreateUserJSON struct {
-	Email string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
+	Email           string `json:"email" binding:"required,email"`
+	Password        string `json:"password" binding:"required,min=6"`
 	ConfirmPassword string `json:"confirmPassword" binding:"required,eqfield=Password"`
 }
-
-
-
 
 func CreateUser(c *gin.Context) {
 
@@ -28,11 +23,11 @@ func CreateUser(c *gin.Context) {
 	err := c.ShouldBind(&newUser)
 	if err != nil {
 		helpers.ErrorHelper(
-			c, 
+			c,
 			helpers.JsonError{
-				Message: "JSON ERROR 001", 
-				Status: 400, 
-				Json: helpers.JsonResponseType{Code: "INVALID_BODY", Msg: "JSON ERROR 001"},
+				Message: "JSON ERROR 001",
+				Status:  400,
+				Json:    helpers.JsonResponseType{Code: "INVALID_BODY", Msg: "JSON ERROR 001"},
 			},
 		)
 		return
@@ -52,10 +47,8 @@ func CreateUser(c *gin.Context) {
 	c.JSON(200, gin.H{"msg": "User Created Successfully"})
 }
 
-
-
 type VerifyUserJSON struct {
-	Email string `json:"email" binding:"email,required"`
+	Email    string `json:"email" binding:"email,required"`
 	Password string `json:"password" binding:"required"`
 }
 
@@ -65,11 +58,11 @@ func VerifyUser(c *gin.Context) {
 
 	if err != nil {
 		helpers.ErrorHelper(
-			c, 
+			c,
 			helpers.JsonError{
-				Message: "JSON ERROR 001", 
-				Status: 400, 
-				Json: helpers.JsonResponseType{Code: "INVALID_BODY", Msg: "JSON ERROR 001"},
+				Message: "JSON ERROR 001",
+				Status:  400,
+				Json:    helpers.JsonResponseType{Code: "INVALID_BODY", Msg: "JSON ERROR 001"},
 			},
 		)
 		return
@@ -86,11 +79,11 @@ func VerifyUser(c *gin.Context) {
 			helpers.JsonError{
 				Message: "User not found (Email)",
 				Status:  404,
-				Json: helpers.JsonResponseType{Code: "INVALID_USER", Msg: "User not found"},
+				Json:    helpers.JsonResponseType{Code: "INVALID_USER", Msg: "User not found"},
 			},
 		)
 		return
-	} 
+	}
 
 	//Network error
 	if result.Error != nil {
@@ -100,7 +93,6 @@ func VerifyUser(c *gin.Context) {
 
 	//Verify the password
 	passwordResult, err := helpers.ComparePasswordAndHash(verifyUserJson.Password, user.Password)
-	
 
 	if err != nil {
 		helpers.NetworkError(c, err)
@@ -113,12 +105,11 @@ func VerifyUser(c *gin.Context) {
 			helpers.JsonError{
 				Message: "User not found (Passwords)",
 				Status:  404,
-				Json: helpers.JsonResponseType{Code: "INVALID_USER", Msg: "User not found"},
+				Json:    helpers.JsonResponseType{Code: "INVALID_USER", Msg: "User not found"},
 			},
 		)
 		return
 	}
-
 
 	jwtToken, err := helpers.GenerateUserJWT(user.ID, user.Email, 1)
 
@@ -134,15 +125,14 @@ func VerifyUser(c *gin.Context) {
 	}
 
 	c.SetCookie(
-		"__Secure-secure-auth.access", 
-		jwtToken, 
-		60 * 1000 * 60, 
-		"/", 
-		domain, 
-		true, 
+		"__Secure-secure-auth.access",
+		jwtToken,
+		60*1000*60,
+		"/",
+		domain,
+		true,
 		true,
 	)
 
 	c.JSON(200, gin.H{"msg": "User Logged In"})
 }
-

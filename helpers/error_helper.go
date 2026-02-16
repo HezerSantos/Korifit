@@ -7,27 +7,28 @@ import (
 )
 
 type JsonResponseType struct {
-	Msg string
+	Msg  string
 	Code string
 }
 
-type JsonError struct{
+type JsonError struct {
 	Message string
-	Status int
-	Json JsonResponseType
+	Status  int
+	Json    JsonResponseType
 }
-func ErrorHelper (c *gin.Context, j JsonError) {
+
+func ErrorHelper(c *gin.Context, j JsonError) {
 	fmt.Printf("\t%s\n", j.Message)
 	c.JSON(j.Status, gin.H{
-		"msg": j.Json.Msg,
+		"msg":  j.Json.Msg,
 		"code": j.Json.Code,
 	})
 }
 
-func NetworkError (c *gin.Context, error error) {
+func NetworkError(c *gin.Context, error error) {
 	fmt.Printf("\t%s\n\t%s", "Internal Server Error", error)
 	c.JSON(500, gin.H{
-		"msg": "Internal Server Error",
+		"msg":  "Internal Server Error",
 		"code": "INVALID_SERVER",
 	})
 }

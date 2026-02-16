@@ -21,13 +21,12 @@ func GetExercises(c *gin.Context) {
 
 	c.JSON(200, gin.H{
 		"exercises": exercies,
-		"id": id,
+		"id":        id,
 	})
 }
 
-
-type CreateExerciseJSON struct{
-	Name string `json:"name" binding:"required"`
+type CreateExerciseJSON struct {
+	Name         string `json:"name" binding:"required"`
 	MuscleTarget string `json:"muscleTarget" binding:"required"`
 }
 
@@ -38,11 +37,11 @@ func CreateExercise(c *gin.Context) {
 
 	if err != nil {
 		helpers.ErrorHelper(
-			c, 
+			c,
 			helpers.JsonError{
-				Message: "JSON ERROR 001", 
-				Status: 400, 
-				Json: helpers.JsonResponseType{Code: "INVALID_BODY", Msg: "JSON ERROR 001"},
+				Message: "JSON ERROR 001",
+				Status:  400,
+				Json:    helpers.JsonResponseType{Code: "INVALID_BODY", Msg: "JSON ERROR 001"},
 			},
 		)
 		return
@@ -54,54 +53,49 @@ func CreateExercise(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"msg": "Record successfully created",
 		"record": map[string]interface{}{
-			"id": exercise.ID,
-			"name": exercise.Name,
+			"id":           exercise.ID,
+			"name":         exercise.Name,
 			"muscleTarget": exercise.MuscleTarget,
-			"workouts": exercise.Workouts,
+			"workouts":     exercise.Workouts,
 		},
 	})
 }
-
-
 
 func GetExerciseByID(c *gin.Context) {
 	paramId := c.Param("id")
 	id, err := uuid.Parse(paramId)
 
 	if err != nil {
-		helpers.ErrorHelper(c, 
+		helpers.ErrorHelper(c,
 			helpers.JsonError{
 				Message: "GetExerciseByID: ID ERROR",
-				Status: 400,
-				Json: helpers.JsonResponseType{Code: "INVALID_BODY", Msg: "Bad Request"},
+				Status:  400,
+				Json:    helpers.JsonResponseType{Code: "INVALID_BODY", Msg: "Bad Request"},
 			},
 		)
 		return
 	}
-
-
 
 	exercise := config.Exercise{ID: id}
 
 	config.DB.Find(&exercise)
 
 	c.JSON(200, gin.H{
-		"msg": "Exercise Successfully Retrieved",
-		"id": exercise.ID,
-		"name": exercise.Name,
+		"msg":          "Exercise Successfully Retrieved",
+		"id":           exercise.ID,
+		"name":         exercise.Name,
 		"muscleTarget": exercise.MuscleTarget,
-		"workouts": exercise.Workouts,
+		"workouts":     exercise.Workouts,
 	})
 }
 
-
 func GetWorkouts(c *gin.Context) {
 	userId, exists := c.Get("userId")
-	
+
 	if !exists {
 		helpers.NetworkError(c, nil)
 		return
-	};
+	}
 
 	parsedUuid, err := uuid.Parse(fmt.Sprint(userId))
 
@@ -120,16 +114,17 @@ func GetWorkouts(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"msg": "Successfully Retrieved User Workouts",
-		"id": parsedUuid,
+		"msg":      "Successfully Retrieved User Workouts",
+		"id":       parsedUuid,
 		"workouts": userWorkouts,
 	})
 }
 
-type CreateWorkoutJSON struct{
-	Name string `json:"name" binding:"required"`
+type CreateWorkoutJSON struct {
+	Name      string   `json:"name" binding:"required"`
 	Exercises []string `json:"exercises" binding:"required"`
 }
+
 func CreateWorkout(c *gin.Context) {
 	var createWorkoutJson CreateWorkoutJSON
 
@@ -138,11 +133,11 @@ func CreateWorkout(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 		helpers.ErrorHelper(
-			c, 
+			c,
 			helpers.JsonError{
-				Message: "JSON ERROR 001", 
-				Status: 400, 
-				Json: helpers.JsonResponseType{Code: "INVALID_BODY", Msg: "JSON ERROR 001"},
+				Message: "JSON ERROR 001",
+				Status:  400,
+				Json:    helpers.JsonResponseType{Code: "INVALID_BODY", Msg: "JSON ERROR 001"},
 			},
 		)
 		return
@@ -153,24 +148,24 @@ func CreateWorkout(c *gin.Context) {
 	if !exists {
 		helpers.NetworkError(c, nil)
 		return
-	};
+	}
 
 	parsedUuid, err := uuid.Parse(fmt.Sprint(userId))
 
 	if err != nil {
 		helpers.NetworkError(c, err)
 		return
-	};
-	
+	}
+
 	var targetExercises []config.Exercise
-	
-	for _, id := range(createWorkoutJson.Exercises) {
+
+	for _, id := range createWorkoutJson.Exercises {
 		parsedUuid, err := uuid.Parse(fmt.Sprint(id))
 
 		if err != nil {
 			helpers.NetworkError(c, err)
 			return
-		};
+		}
 
 		selectedExercise := config.Exercise{ID: parsedUuid}
 		result := config.DB.Find(&selectedExercise)
@@ -192,10 +187,10 @@ func CreateWorkout(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"msg": "Workout Created",
-		"id": newWorkout.ID,
-		"userId": newWorkout.UserID,
-		"name": newWorkout.Name,
+		"msg":       "Workout Created",
+		"id":        newWorkout.ID,
+		"userId":    newWorkout.UserID,
+		"name":      newWorkout.Name,
 		"exercises": newWorkout.Exercises,
 	})
 }
@@ -206,11 +201,11 @@ func GetWorkoutByID(c *gin.Context) {
 	parsedWorkoutId, err := uuid.Parse(workoutId)
 
 	if err != nil {
-		helpers.ErrorHelper(c, 
+		helpers.ErrorHelper(c,
 			helpers.JsonError{
 				Message: "GetWorkoutByID: ID ERROR",
-				Status: 400,
-				Json: helpers.JsonResponseType{Code: "INVALID_PARAM", Msg: "Bad Request"},
+				Status:  400,
+				Json:    helpers.JsonResponseType{Code: "INVALID_PARAM", Msg: "Bad Request"},
 			},
 		)
 		return
@@ -241,9 +236,9 @@ func GetWorkoutByID(c *gin.Context) {
 	if result.RowsAffected == 0 {
 		helpers.ErrorHelper(c, helpers.JsonError{
 			Message: "Workout not found",
-			Status: 404,
+			Status:  404,
 			Json: helpers.JsonResponseType{
-				Msg: "INVALID_PARAM",
+				Msg:  "INVALID_PARAM",
 				Code: "INVALID_PARAM",
 			},
 		})
@@ -253,16 +248,16 @@ func GetWorkoutByID(c *gin.Context) {
 	if queriedWorkout.UserID != parsedUserId {
 		helpers.ErrorHelper(c, helpers.JsonError{
 			Message: "Unauthorized",
-			Status: 401,
+			Status:  401,
 			Json: helpers.JsonResponseType{
-				Msg: "INVALID_ACCESS",
+				Msg:  "INVALID_ACCESS",
 				Code: "INVALID_ACCESS",
 			},
 		})
 		return
 	}
 	c.JSON(200, gin.H{
-		"msg": "Workout Retrieved",
+		"msg":     "Workout Retrieved",
 		"workout": queriedWorkout,
 	})
 

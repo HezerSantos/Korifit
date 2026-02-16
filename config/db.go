@@ -10,7 +10,7 @@ import (
 
 var DB *gorm.DB
 
-func DatabaseConnect(){
+func DatabaseConnect() {
 	fmt.Println("Connecting to Database...")
 
 	dsn := os.Getenv("DATABASE_URL")
@@ -30,7 +30,7 @@ func DatabaseConnect(){
 }
 
 func DatabaseMigrate() {
-    fmt.Println("   MIGRATING DATABASE...")
-	DB.AutoMigrate(&Exercise{}, &Workout{}, &DailyNutritionList{}, &NutritionItem{}, &User{},)
-    fmt.Println("   FINISHED MIGRATING DATABASE...")
+	fmt.Println("   MIGRATING DATABASE...")
+	DB.AutoMigrate(&Exercise{}, &Workout{}, &DailyNutritionList{}, &NutritionItem{}, &User{})
+	fmt.Println("   FINISHED MIGRATING DATABASE...")
 }
