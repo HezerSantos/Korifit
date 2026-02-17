@@ -308,3 +308,88 @@ func GetNutritionList(c *gin.Context) {
 		"dailyNutritionList": userNutritionList,
 	})
 }
+
+func GetNutritionListByID(c *gin.Context) {
+	listId := c.Param("id")
+
+	parsedListId, err := uuid.Parse(listId)
+
+	if err != nil {
+		helpers.ErrorHelper(c,
+			helpers.JsonError{
+				Message: "GetNutritionListByID: ID ERROR",
+				Status:  400,
+				Json:    helpers.JsonResponseType{Code: "INVALID_PARAM", Msg: "Bad Request"},
+			},
+		)
+		return
+	}
+	userId, exists := c.Get("userId")
+
+	if !exists {
+		helpers.ErrorHelper(c, helpers.JsonError{
+			Message: "Unauthorized",
+			Status:  401,
+			Json: helpers.JsonResponseType{
+				Msg:  "INVALID_ACCESS",
+				Code: "INVALID_ACCESS",
+			},
+		})
+		return
+	}
+
+	parsedUserId, err := uuid.Parse(fmt.Sprint(userId))
+
+	if err != nil {
+		helpers.ErrorHelper(c, helpers.JsonError{
+			Message: "Unauthorized",
+			Status:  401,
+			Json: helpers.JsonResponseType{
+				Msg:  "INVALID_ACCESS",
+				Code: "INVALID_ACCESS",
+			},
+		})
+		return
+	}
+
+	var nutritionList config.DailyNutritionList
+
+	result := config.DB.Preload("NutritionItems").Where("id = ?", parsedListId).Find(&nutritionList)
+
+	if result.Error != nil {
+		helpers.NetworkError(c, result.Error)
+		return
+	}
+
+	if result.RowsAffected == 0 {
+		helpers.ErrorHelper(c, helpers.JsonError{
+			Message: "Nutrition List not found",
+			Status:  404,
+			Json: helpers.JsonResponseType{
+				Msg:  "INVALID_PARAM",
+				Code: "INVALID_PARAM",
+			},
+		})
+		return
+	}
+
+	if nutritionList.UserID != parsedUserId {
+		helpers.ErrorHelper(c, helpers.JsonError{
+			Message: "Unauthorized",
+			Status:  401,
+			Json: helpers.JsonResponseType{
+				Msg:  "INVALID_ACCESS",
+				Code: "INVALID_ACCESS",
+			},
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"msg":            "Retrieved Daily Nutrition List",
+		"id":             nutritionList.ID,
+		"date":           nutritionList.Date,
+		"nutritionItems": nutritionList.NutritionItems,
+		"userId":         nutritionList.UserID,
+	})
+}
