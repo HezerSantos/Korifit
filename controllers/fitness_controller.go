@@ -262,3 +262,49 @@ func GetWorkoutByID(c *gin.Context) {
 	})
 
 }
+
+func GetNutritionList(c *gin.Context) {
+	userId, exists := c.Get("userId")
+
+	if !exists {
+		helpers.ErrorHelper(c, helpers.JsonError{
+			Message: "Unauthorized",
+			Status:  401,
+			Json: helpers.JsonResponseType{
+				Msg:  "INVALID_ACCESS",
+				Code: "INVALID_ACCESS",
+			},
+		})
+		return
+	}
+
+	parsedUserId, err := uuid.Parse(fmt.Sprint(userId))
+
+	if err != nil {
+		helpers.NetworkError(c, err)
+		return
+	}
+
+	var userNutritionList config.DailyNutritionList
+
+	result := config.DB.Where("id = ?", parsedUserId).Preload("NutritionItems").Find(&userNutritionList)
+
+	if result.Error != nil {
+		helpers.NetworkError(c, err)
+		return
+	}
+
+	if result.RowsAffected == 0 {
+		userNutritionList := []interface{}{}
+		c.JSON(200, gin.H{
+			"msg":                "Retrieved Daily Nutrition List",
+			"dailyNutritionList": userNutritionList,
+		})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"msg":                "Retrieved Daily Nutrition List",
+		"dailyNutritionList": userNutritionList,
+	})
+}
