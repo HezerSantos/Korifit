@@ -393,3 +393,87 @@ func GetNutritionListByID(c *gin.Context) {
 		"userId":         nutritionList.UserID,
 	})
 }
+
+type TemporaryNutritionItem struct {
+	Name     string
+	Calories int
+	Protein  int
+}
+type NutritionListJson struct {
+	Date          string                   `json:"date" binding:"required"`
+	NutritionList []TemporaryNutritionItem `json:"nutritionList" binding:"required"`
+}
+
+func CreateNutritionList(c *gin.Context) {
+	var nutritionListJson NutritionListJson
+
+	err := c.ShouldBind(&nutritionListJson)
+
+	if err != nil {
+		helpers.ErrorHelper(c,
+			helpers.JsonError{
+				Message: "GetNutritionListByID: ID ERROR",
+				Status:  400,
+				Json:    helpers.JsonResponseType{Code: "INVALID_PARAM", Msg: "Bad Request"},
+			},
+		)
+		return
+	}
+
+	userId, exists := c.Get("userId")
+
+	if !exists {
+		helpers.ErrorHelper(c,
+			helpers.JsonError{
+				Message: "Unauthorized",
+				Status:  404,
+				Json:    helpers.JsonResponseType{Code: "INVALID_ACCESS", Msg: "Unauthorized"},
+			},
+		)
+		return
+	}
+
+	parsedUserId, err := uuid.Parse(fmt.Sprint(userId))
+
+	if err != nil {
+		helpers.ErrorHelper(c,
+			helpers.JsonError{
+				Message: "Unauthorized",
+				Status:  404,
+				Json:    helpers.JsonResponseType{Code: "INVALID_ACCESS", Msg: "Unauthorized"},
+			},
+		)
+		return
+	}
+
+	var nutritionList []config.NutritionItem
+
+	for _, item := range nutritionListJson.NutritionList {
+		newNutritionItem := config.NutritionItem{
+			Name:     item.Name,
+			Calories: item.Calories,
+			Protein:  item.Protein,
+		}
+		nutritionList = append(nutritionList, newNutritionItem)
+	}
+
+	newNutritionList := config.DailyNutritionList{
+		UserID:         parsedUserId,
+		Date:           nutritionListJson.Date,
+		NutritionItems: nutritionList,
+	}
+
+	result := config.DB.Create(&newNutritionList)
+
+	if result.Error != nil {
+		helpers.NetworkError(c, result.Error)
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"msg":                  "List Created",
+		"dailyNutritionListId": newNutritionList.ID,
+		"date":                 newNutritionList.Date,
+		"nutritionItems":       newNutritionList.NutritionItems,
+	})
+}
