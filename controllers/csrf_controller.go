@@ -38,4 +38,27 @@ func GetCsrfToken(c *gin.Context) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	signed, err := token.SignedString(CSRF_SECRET)
+
+	if err != nil {
+		helpers.NetworkError(c, err)
+		return
+	}
+
+	domain := ""
+
+	if os.Getenv("GO_ENV") == "production" {
+		domain = ".hallowedvisions.com"
+	}
+
+	c.SetCookie(
+		"__Secure-auth.csrf",
+		signed,
+		5*1000*60,
+		"/",
+		domain,
+		true,
+		false,
+	)
+
+	c.JSON(200, gin.H{"msg": "csrf retrieved"})
 }

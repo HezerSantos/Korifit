@@ -2,9 +2,11 @@ package middleware
 
 import (
 	"Korifit/helpers"
-
 	"github.com/gin-gonic/gin"
+	"os"
 )
+
+var AUTH_SECRET = []byte(os.Getenv("AUTH_SECRET"))
 
 func AuthenticateUser(c *gin.Context) {
 	cookie, err := c.Cookie("__Secure-secure-auth.access")
@@ -24,7 +26,7 @@ func AuthenticateUser(c *gin.Context) {
 		return
 	}
 
-	claims, err := helpers.VerifyUserJWT(cookie)
+	claims, err := helpers.VerifyUserJWT(cookie, AUTH_SECRET)
 
 	if err != nil {
 		helpers.ErrorHelper(c,

@@ -23,12 +23,12 @@ func GenerateUserJWT(userId uuid.UUID, email string, exp int) (string, error) {
 	return token.SignedString(AUTH_SECRET)
 }
 
-func VerifyUserJWT(cookie string) (map[string]interface{}, error) {
+func VerifyUserJWT(cookie string, TOKEN_SECRET []byte) (map[string]interface{}, error) {
 	token, err := jwt.Parse(cookie, func(token *jwt.Token) (interface{}, error) {
-		if token.Method != jwt.SigningMethodHS256 {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method")
 		}
-		return AUTH_SECRET, nil
+		return TOKEN_SECRET, nil
 	})
 
 	if err != nil {
