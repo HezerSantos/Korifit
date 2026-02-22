@@ -26,6 +26,7 @@ func ProcessRoutes(api *gin.RouterGroup) {
 	fitness.GET("/workouts/:id", controllers.GetWorkoutByID)
 	fitness.GET("/nutrition", controllers.GetNutritionList)
 	fitness.GET("/nutrition/:id", controllers.GetNutritionListByID)
+	fitness.POST("/nutrition", controllers.CreateNutritionList)
 
 	recipes := api.Group("/recipes")
 	recipes.Use(middleware.AuthenticateCsrf)
