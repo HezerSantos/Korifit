@@ -8,6 +8,7 @@ import (
 )
 
 func ProcessRoutes(api *gin.RouterGroup) {
+	api.GET("csrf", controllers.GetCsrfToken)
 
 	users := api.Group("/users")
 
@@ -26,6 +27,7 @@ func ProcessRoutes(api *gin.RouterGroup) {
 	fitness.GET("/nutrition", controllers.GetNutritionList)
 	fitness.GET("/nutrition/:id", controllers.GetNutritionListByID)
 
-	// recipes := api.Group("/recipes")
-	// recipes.GET("/")
+	recipes := api.Group("/recipes")
+	recipes.Use(middleware.AuthenticateCsrf)
+	recipes.GET("/", controllers.GetRecipes)
 }

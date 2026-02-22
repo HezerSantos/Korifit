@@ -93,27 +93,20 @@ func AuthenticateCsrf(c *gin.Context) {
 	cookieCsrf, ok := claims["csrfToken"]
 
 	if !ok {
-		helpers.NetworkError(c, nil)
+		helpers.NetworkError(c, fmt.Errorf("cookie csrf missing"))
 		c.Abort()
 		return
 	}
 
-	key, ok := claims["key"]
+	key, ok := claims["key"].(float64)
 
 	if !ok {
-		helpers.NetworkError(c, nil)
+		helpers.NetworkError(c, fmt.Errorf("cookie csrf missing"))
 		c.Abort()
 		return
 	}
 
-	var intKey int
-	if tempKey, ok := key.(int); !ok {
-		helpers.NetworkError(c, nil)
-		c.Abort()
-		return
-	} else {
-		intKey = tempKey
-	}
+	intKey := int(key)
 
 	match := compareCsrf(fmt.Sprint(cookieCsrf), csrfHeader, intKey)
 
